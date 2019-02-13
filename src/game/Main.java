@@ -150,7 +150,7 @@ public class Main extends Application {
             return;
         }
 
-        GridNumber aiMove = aiPlayer.getGameMove(humanMove);
+        GridNumber aiMove = aiPlayer.getGameMove();
         gameState.setMove(aiMove);
         Button aiMoveB = getPlayButton(aiMove);
         aiMoveB.setText("O");

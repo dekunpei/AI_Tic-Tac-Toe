@@ -12,6 +12,10 @@ class GridNumber {
         column = c;
     }
 
+    static GridNumber getInvalidObject() {
+        return new GridNumber(-1, -1);
+    }
+
     boolean isValid() {
         return row >=0 && column >=0;
     }
