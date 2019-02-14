@@ -310,6 +310,7 @@ class AIPlayer {
                 continue;
             }
             ArrayList<GridNumber> comp = DIAGONAL_COMP.get(move);
+            assert(comp.size() == 2);
             if (isFree(move) && isOccupiedBy(player, comp.get(0)) && isOccupiedBy(player, comp.get(1))) {
                 return move;
             }
