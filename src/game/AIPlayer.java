@@ -1,7 +1,6 @@
 package game;
 
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.HashMap;
 
 /**
@@ -101,6 +100,10 @@ class AIPlayer {
 
     private boolean isOccupiedBy(Player player, int r, int c) {
         return gameState.getOccupiedBy(new GridNumber(r, c)) == player;
+    }
+
+    private boolean isOccupiedBy(Player player, GridNumber loc) {
+        return gameState.getOccupiedBy(loc) == player;
     }
 
     private boolean isFree(int r, int c) {
@@ -301,43 +304,44 @@ class AIPlayer {
     }
 
     private GridNumber getPlayToCompleteDiagonal(Player player) {
-        if (isFree(2, 2) && isOccupiedBy(player, 0, 0) && isOccupiedBy(player, 1, 1)) {
-            return new GridNumber(2, 2);
-        } else if (isFree(1, 1) && isOccupiedBy(player, 0, 0) && isOccupiedBy(player, 2, 2)) {
+        for (GridNumber move : DIAGONAL_COMP.keySet()) {
+            if (move.getRow() == 1 && move.getColumn() == 1) {
+                // The complements of the center spans two diagonals, specially handled below
+                continue;
+            }
+            ArrayList<GridNumber> comp = DIAGONAL_COMP.get(move);
+            assert(comp.size() == 2);
+            if (isFree(move) && isOccupiedBy(player, comp.get(0)) && isOccupiedBy(player, comp.get(1))) {
+                return move;
+            }
+        }
+        if (isFree(1, 1) && isOccupiedBy(player, 0, 0) && isOccupiedBy(player, 2, 2)) {
             return new GridNumber(1, 1);
-        } else if (isFree(0, 0) && isOccupiedBy(player, 1, 1) && isOccupiedBy(player, 2, 2)) {
-            return new GridNumber(0, 0);
-        } else if (isFree(2, 0) && isOccupiedBy(player, 0, 2) && isOccupiedBy(player, 1, 1)) {
-            return new GridNumber(2, 0);
-        } else if (isFree(2, 0) && isOccupiedBy(player, 0, 2) && isOccupiedBy(player, 2, 0)) {
+        } else if (isFree(1, 1) && isOccupiedBy(player, 0, 2) && isOccupiedBy(player, 2, 0)) {
             return new GridNumber(1, 1);
-        } else if (isFree(0, 2) && isOccupiedBy(player, 1, 1) && isOccupiedBy(player, 2, 0)) {
-            return new GridNumber(0, 2);
         }
         return GridNumber.getInvalidObject();
     }
 
     private GridNumber getPlayToCompleteColumn(Player player) {
-        for (int i = 0; i < 3; i++) {
-            if (isFree(2, i) && isOccupiedBy(player, 0, i) && isOccupiedBy(player, 1, i)) {
-                return new GridNumber(2, i);
-            } else if (isFree(1, i) && isOccupiedBy(player, 0, i) && isOccupiedBy(player, 2, i)) {
-                return new GridNumber(1, i);
-            } else if (isFree(0, i) && isOccupiedBy(player, 1, i) && isOccupiedBy(player, 2, i)) {
-                return new GridNumber(0, i);
+        for (int c = 0; c < 3; c++) {
+            for (int r = 0; r < 3; r++) {
+                if (isFree(r, c) && isOccupiedBy(player, INDEX_COMP[r][0], c) &&
+                        isOccupiedBy(player, INDEX_COMP[r][1], c)) {
+                    return new GridNumber(r, c);
+                }
             }
         }
         return GridNumber.getInvalidObject();
     }
 
     private GridNumber getPlayToCompleteRow(Player player) {
-        for (int i = 0; i < 3; i++) {
-            if (isFree(i, 2) && isOccupiedBy(player, i, 0) && isOccupiedBy(player, i, 1)) {
-                return new GridNumber(i, 2);
-            } else if (isFree(i, 1) && isOccupiedBy(player, i, 0) && isOccupiedBy(player, i, 2)) {
-                return new GridNumber(i, 1);
-            } else if (isFree(i, 0) && isOccupiedBy(player, i, 1) && isOccupiedBy(player, i, 2)) {
-                return new GridNumber(i, 0);
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                if (isFree(r, c) && isOccupiedBy(player, r, INDEX_COMP[c][0]) &&
+                        isOccupiedBy(player, r, INDEX_COMP[c][1])) {
+                    return new GridNumber(r, c);
+                }
             }
         }
         return GridNumber.getInvalidObject();
