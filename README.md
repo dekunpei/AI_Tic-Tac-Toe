@@ -1,7 +1,7 @@
 # AI_Tic-Tac-Toe
 ## Summary
 Simple tic-tac-toe written using Java and JavaFX. This version supports the following:
-- an AI player implementing strategies \#1 and \#2 from [here](https://en.wikipedia.org/wiki/Tic-tac-toe#Strategy).
+- an AI player implementing the strategy from [here](https://en.wikipedia.org/wiki/Tic-tac-toe#Strategy).
 - reset, undo and redo
 - game end detection
 
