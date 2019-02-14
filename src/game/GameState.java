@@ -69,10 +69,6 @@ class GameState {
         chooseCurrentPlayer();
     }
 
-    Player getCurrentPlayer() {
-        return currentPlayer;
-    }
-
     boolean canUndo() {
         return !prevMoves.empty();
     }

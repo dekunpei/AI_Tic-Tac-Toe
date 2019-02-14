@@ -9,8 +9,6 @@ import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 
-import java.util.Random;
-
 
 /**
  * The Main class creates the JavaFX implementation of the Tic-Tac-Toe application.
@@ -28,10 +26,6 @@ public class Main extends Application {
     private Button undoB;
     private Button redoB;
 
-    private HBox[] playRows;
-    private VBox playGrid;
-    private VBox gameLayout;
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -39,7 +33,7 @@ public class Main extends Application {
     // Create all the buttons for the application
     private Pane createButtonGroup() {
         playBs = new Button[3][3];
-        playRows = new HBox[3];
+        HBox[] playRows = new HBox[3];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 playBs[i][j] = new Button();
@@ -71,10 +65,10 @@ public class Main extends Application {
 
         VBox playGridInner = new VBox(playRows[0], playRows[1], playRows[2]);
         playGridInner.setStyle("-fx-spacing: 10; -fx-background-color: black;");
-        playGrid = new VBox(playGridInner);
+        VBox playGrid = new VBox(playGridInner);
         playGrid.setStyle(" -fx-padding: 20;");
 
-        gameLayout = new VBox(buttonRow, playGrid);
+        VBox gameLayout = new VBox(buttonRow, playGrid);
         gameLayout.setStyle("-fx-spacing: 10");
 
         return new StackPane(gameLayout);
@@ -150,7 +144,8 @@ public class Main extends Application {
             return;
         }
 
-        GridNumber aiMove = aiPlayer.getGameMove();
+        GridNumber aiMove = aiPlayer.getGameMove(humanMove);
+        assert(aiMove.isValid() && !gameState.isOccupied(aiMove));
         gameState.setMove(aiMove);
         Button aiMoveB = getPlayButton(aiMove);
         aiMoveB.setText("O");

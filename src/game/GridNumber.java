@@ -6,10 +6,13 @@ package game;
 class GridNumber {
     private int row;
     private int column;
+    private final int hash;
 
     GridNumber(int r, int c) {
         row = r;
         column = c;
+        int sum = r+c;
+        hash = sum*(sum+1)/2 + r;
     }
 
     static GridNumber getInvalidObject() {
@@ -28,8 +31,24 @@ class GridNumber {
         return column;
     }
 
-    boolean isEqual(GridNumber another) {
-        return (this.getRow() == another.getRow() &&
-                this.getColumn() == another.getColumn());
+    @Override
+    public boolean equals(Object another) {
+        if (!(another instanceof GridNumber)) {
+            return false;
+        } else if (another == this) {
+            return true;
+        }
+        GridNumber rhs = (GridNumber) another;
+        return (this.getRow() == rhs.getRow() &&
+                this.getColumn() == rhs.getColumn());
+    }
+
+    boolean equals(int r, int c){
+        return (this.getRow() == r && this.getColumn() == c);
+    }
+
+    @Override
+    public int hashCode() {
+        return hash;
     }
 }
