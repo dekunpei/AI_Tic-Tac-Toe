@@ -50,7 +50,11 @@ class GameState {
         clearUndoRedoState();
     }
 
-    private void setOccupied(GridNumber gridNum, Player player) {
+    void unSetOccupied(GridNumber gridNum) {
+        occupied[gridNum.getRow()][gridNum.getColumn()] = Player.UNSET;
+    }
+
+    void setOccupied(GridNumber gridNum, Player player) {
         occupied[gridNum.getRow()][gridNum.getColumn()] = player;
     }
 

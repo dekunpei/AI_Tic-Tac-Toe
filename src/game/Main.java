@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 
+import java.util.Random;
+
 
 /**
  * The Main class creates the JavaFX implementation of the Tic-Tac-Toe application.
@@ -142,6 +144,15 @@ public class Main extends Application {
         boolean gameEnded = handleEndedGame();
         if (gameEnded) {
             return;
+        }
+
+        // Slow down game play by adding a random wait before
+        // responding.
+        try {
+            Random random = new Random();
+            Thread.sleep(random.nextInt(250) + 50);
+        } catch (Exception e) {
+            // do nothing
         }
 
         GridNumber aiMove = aiPlayer.getGameMove(humanMove);
