@@ -1,7 +1,11 @@
 package game;
 
+import javax.naming.event.ObjectChangeListener;
+import java.awt.image.AreaAveragingScaleFilter;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * The AIPlayer class stores the logic of the Tic-Tac-Toe AI player
@@ -12,6 +16,7 @@ class AIPlayer {
     private static final Player HUMAN = Player.CROSS;
     private static final int[][] INDEX_COMP;
     private static final HashMap<GridNumber, ArrayList<GridNumber>> DIAGONAL_COMP;
+    private static final HashMap<GridNumber, GridNumber> OPPOSITE_CORNERS;
     private static final ArrayList<GridNumber> LEFT_RIGHT_DIAGONAL;
     private static final ArrayList<GridNumber> RIGHT_LEFT_DIAGONAL;
     private static final ArrayList<GridNumber> CORNERS;
@@ -69,6 +74,13 @@ class AIPlayer {
         DIAGONAL_COMP.put(loc22, diagComp22);
         DIAGONAL_COMP.put(loc02, diagComp02);
         DIAGONAL_COMP.put(loc20, diagComp20);
+
+        // Initialize a lookup table of opposite corners
+        OPPOSITE_CORNERS = new HashMap<>();
+        OPPOSITE_CORNERS.put(loc00, loc22);
+        OPPOSITE_CORNERS.put(loc02, loc20);
+        OPPOSITE_CORNERS.put(loc20, loc02);
+        OPPOSITE_CORNERS.put(loc22, loc22);
 
         // Initialize a lookup of moves on each diagonal
         LEFT_RIGHT_DIAGONAL = new ArrayList<>();
@@ -266,20 +278,24 @@ class AIPlayer {
     }
 
     private GridNumber handleTwoForks(ArrayList<GridNumber> availableMoves, ArrayList<GridNumber> forkingMoves){
-        // A way to handle two possible forks by the opponent by creating a
-        // threat using neither of the forks.
+        // If HUMAN has multiple forking moves available, force the HUMAN to block
+        // in a way that he cannot complete the fork
         GridNumber move = GridNumber.getInvalidObject();
         if (forkingMoves.size() < 2) {
             return move;
         }
-        assert(isOccupiedBy(AI, 1, 1));
+
         for (GridNumber availableMove : availableMoves) {
-            if (getMoveThreatAdd(AI, availableMove) >= 1 &&
-                    !forkingMoves.contains(availableMove)) {
+            gameState.setOccupied(availableMove, AI);
+            GridNumber winMove = getWinMove(AI);
+            ArrayList<GridNumber> opponentForkingMoves = getForkingMoves(HUMAN);
+            if (winMove.isValid() && !opponentForkingMoves.contains(winMove)) {
                 move = availableMove;
+                gameState.unSetOccupied(availableMove);
+                break;
             }
+            gameState.unSetOccupied(availableMove);
         }
-        assert(move.isValid());
         return move;
     }
 
@@ -372,43 +388,41 @@ class AIPlayer {
     */
 
     private GridNumber getCenterMove() {
-        GridNumber aiMove = GridNumber.getInvalidObject();
-        if (isFree(1, 1)) {
-            aiMove = new GridNumber(1, 1);
-        }
-        return aiMove;
+        return isFree(1, 1) ? new GridNumber(1, 1) : GridNumber.getInvalidObject();
     }
 
     private GridNumber getOppositeCornerMove(GridNumber humanMove) {
         GridNumber aiMove = GridNumber.getInvalidObject();
-        if (humanMove.equals(0, 0)) {
-            aiMove = new GridNumber(2, 2);
-        } else if (humanMove.equals(0, 2)) {
-            aiMove = new GridNumber(2, 0);
-        } else if (humanMove.equals(2, 0)) {
-            aiMove = new GridNumber(0, 2);
-        } else if (humanMove.equals(2, 2)) {
-            aiMove = new GridNumber(0, 0);
+        if (OPPOSITE_CORNERS.containsKey(humanMove) && isFree(OPPOSITE_CORNERS.get(humanMove))) {
+            aiMove = OPPOSITE_CORNERS.get(humanMove);
+        }
+        return aiMove;
+    }
+
+    private GridNumber getFromListImpl(ArrayList<GridNumber> moveList) {
+        GridNumber aiMove = GridNumber.getInvalidObject();
+        ArrayList<GridNumber> availableMoves = new ArrayList<>();
+        for (GridNumber move : moveList) {
+            if (isFree(move)) {
+                availableMoves.add(move);
+            }
+        }
+        if (availableMoves.size() == 1) {
+            aiMove = availableMoves.get(0);
+        } else if (availableMoves.size() > 1) {
+            Random random = new Random();
+            int idx = random.nextInt(availableMoves.size());
+            aiMove = availableMoves.get(idx);
         }
         return aiMove;
     }
 
     private GridNumber getEmptySideMove() {
-        for (GridNumber side : SIDES) {
-            if (isFree(side)) {
-                return side;
-            }
-        }
-        return GridNumber.getInvalidObject();
+        return getFromListImpl(SIDES);
     }
 
     private GridNumber getEmptyCornerMove(){
-        for (GridNumber corner : CORNERS) {
-            if (isFree(corner)) {
-                return corner;
-            }
-        }
-        return GridNumber.getInvalidObject();
+        return getFromListImpl(CORNERS);
     }
 
     GridNumber getGameMove(GridNumber humanMove) {
